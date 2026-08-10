@@ -1,0 +1,248 @@
+// PRISMA SCHEMA
+// This single file is the source of truth for three things at once:
+//   1. Your database tables (via `prisma migrate`)
+//   2. Your TypeScript types (via `prisma generate`)
+//   3. Your query API (prisma.customer.findMany() etc.)
+// Change this file, run migrate, and all three stay in sync.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================================
+// ENUMS
+// Each becomes a Postgres enum type AND a TypeScript union.
+// Invalid values are rejected by the database and flagged by
+// the compiler. Two independent safety nets.
+// ============================================================
+
+enum Role {
+  ADMIN
+  SALES
+  WAREHOUSE
+  ACCOUNTS
+}
+
+enum CustomerType {
+  RETAIL
+  WHOLESALE
+  DISTRIBUTOR
+}
+
+enum CustomerStatus {
+  LEAD
+  ACTIVE
+  INACTIVE
+}
+
+enum MovementType {
+  IN
+  OUT
+}
+
+enum ChallanStatus {
+  DRAFT
+  CONFIRMED
+  CANCELLED
+}
+
+// ============================================================
+// USER
+// ============================================================
+
+model User {
+  id           String   @id @default(uuid())
+  name         String
+  email        String   @unique // enforced by the DB, not just your code
+  passwordHash String   @map("password_hash")
+  role         Role     @default(SALES)
+  isActive     Boolean  @default(true) @map("is_active")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  // Back-relations. These create NO columns — they exist so you can
+  // write prisma.user.findUnique({ include: { challans: true } }).
+  customers      Customer[]
+  followUps      FollowUp[]
+  stockMovements StockMovement[]
+  challans       Challan[]
+
+  @@map("users")
+}
+
+// ============================================================
+// CUSTOMER
+// ============================================================
+
+model Customer {
+  id           String         @id @default(uuid())
+  name         String
+  mobile       String
+  email        String?
+  businessName String?        @map("business_name")
+  gstNumber    String?        @map("gst_number")
+  customerType CustomerType   @default(RETAIL) @map("customer_type")
+  addressLine  String?        @map("address_line")
+  city         String?
+  state        String?
+  pincode      String?
+  status       CustomerStatus @default(LEAD)
+  followUpDate DateTime?      @map("follow_up_date") @db.Date
+  notes        String?
+  isActive     Boolean        @default(true) @map("is_active")
+  createdAt    DateTime       @default(now()) @map("created_at")
+  updatedAt    DateTime       @updatedAt @map("updated_at")
+
+  createdById String @map("created_by")
+  createdBy   User   @relation(fields: [createdById], references: [id])
+
+  followUps FollowUp[]
+  challans  Challan[]
+
+  // INDEXES. Without one, searching by mobile scans every row.
+  // With one, Postgres jumps straight to the match. Add indexes
+  // to any column you filter, sort, or search on.
+  @@index([mobile])
+  @@index([status])
+  @@index([followUpDate])
+  @@map("customers")
+}
+
+// A separate table rather than appending to a `notes` text column,
+// because each follow-up needs its own author and timestamp.
+model FollowUp {
+  id        String   @id @default(uuid())
+  note      String
+  createdAt DateTime @default(now()) @map("created_at")
+
+  customerId String   @map("customer_id")
+  customer   Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+
+  createdById String @map("created_by")
+  createdBy   User   @relation(fields: [createdById], references: [id])
+
+  @@index([customerId])
+  @@map("follow_ups")
+}
+
+// ============================================================
+// PRODUCT
+// ============================================================
+
+model Product {
+  id            String  @id @default(uuid())
+  name          String
+  sku           String  @unique
+  category      String?
+  unitPrice     Decimal @map("unit_price") @db.Decimal(12, 2) // never Float
+  currentStock  Int     @default(0) @map("current_stock")     // cached total
+  minStockAlert Int     @default(0) @map("min_stock_alert")
+  location      String?
+  isActive      Boolean @default(true) @map("is_active")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  stockMovements StockMovement[]
+  challanItems   ChallanItem[]
+
+  @@index([name])
+  @@index([category])
+  @@map("products")
+}
+
+// The append-only ledger. Rows are NEVER updated or deleted.
+model StockMovement {
+  id           String       @id @default(uuid())
+  quantity     Int // always positive; direction lives in movementType
+  movementType MovementType @map("movement_type")
+  reason       String
+  stockAfter   Int          @map("stock_after") // balance after this move
+  createdAt    DateTime     @default(now()) @map("created_at")
+
+  productId String  @map("product_id")
+  product   Product @relation(fields: [productId], references: [id])
+
+  createdById String @map("created_by")
+  createdBy   User   @relation(fields: [createdById], references: [id])
+
+  // Optional link back to the challan that caused this movement.
+  challanId String?  @map("challan_id")
+  challan   Challan? @relation(fields: [challanId], references: [id])
+
+  @@index([productId, createdAt])
+  @@map("stock_movements")
+}
+
+// ============================================================
+// CHALLAN
+// ============================================================
+
+model Challan {
+  id            String        @id @default(uuid())
+  challanNumber String        @unique @map("challan_number")
+  status        ChallanStatus @default(DRAFT)
+  totalQuantity Int           @default(0) @map("total_quantity")
+  totalAmount   Decimal       @default(0) @map("total_amount") @db.Decimal(14, 2)
+  remarks       String?
+  confirmedAt   DateTime?     @map("confirmed_at")
+  createdAt     DateTime      @default(now()) @map("created_at")
+  updatedAt     DateTime      @updatedAt @map("updated_at")
+
+  customerId String   @map("customer_id")
+  customer   Customer @relation(fields: [customerId], references: [id])
+
+  createdById String @map("created_by")
+  createdBy   User   @relation(fields: [createdById], references: [id])
+
+  items          ChallanItem[]
+  stockMovements StockMovement[]
+
+  @@index([customerId])
+  @@index([status])
+  @@index([createdAt])
+  @@map("challans")
+}
+
+// THE SNAPSHOT TABLE.
+// productName / productSku / unitPrice are COPIES taken at write time.
+// Editing the product later must never change a historical challan.
+model ChallanItem {
+  id          String  @id @default(uuid())
+  productName String  @map("product_name")
+  productSku  String  @map("product_sku")
+  unitPrice   Decimal @map("unit_price") @db.Decimal(12, 2)
+  quantity    Int
+  lineTotal   Decimal @map("line_total") @db.Decimal(14, 2)
+
+  challanId String  @map("challan_id")
+  challan   Challan @relation(fields: [challanId], references: [id], onDelete: Cascade)
+
+  // Kept for reporting ("how many units of SKU-1 did we ship?").
+  // The snapshot above is what gets PRINTED.
+  productId String  @map("product_id")
+  product   Product @relation(fields: [productId], references: [id])
+
+  @@index([challanId])
+  @@map("challan_items")
+}
+
+// ============================================================
+// CHALLAN NUMBER COUNTER
+// Generating "CH-2026-0001" by counting existing rows is a race
+// condition: two simultaneous requests both count 5 and both
+// produce 0006. This table is locked and incremented inside the
+// same transaction as the challan insert, so numbers can't collide.
+// ============================================================
+
+model ChallanCounter {
+  year       Int @id
+  lastNumber Int @default(0) @map("last_number")
+
+  @@map("challan_counters")
+}
