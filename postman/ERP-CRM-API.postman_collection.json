@@ -1,0 +1,276 @@
+{
+  "info": {
+    "_postman_id": "26222fc8-fd87-4351-90c8-48c4dde23c1e",
+    "name": "ERP CRM API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "57273158"
+  },
+  "item": [
+    {
+      "name": "Auth",
+      "item": []
+    },
+    {
+      "name": "Customers",
+      "item": []
+    },
+    {
+      "name": "Products",
+      "item": []
+    },
+    {
+      "name": "Challans",
+      "item": []
+    },
+    {
+      "name": "Sandbox",
+      "item": [
+        {
+          "name": "health",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  ""
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status is 200\", () => pm.response.to.have.status(200));\r\npm.test(\"has consistent envelope\", () => {\r\n  const body = pm.response.json();\r\n  pm.expect(body).to.have.property(\"success\");\r\n  pm.expect(body).to.have.property(\"message\");\r\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/health",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "health"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "validate1",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  ""
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status is 201\", () => pm.response.to.have.status(201));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"name\":\"Rajesh\",\"mobile\":\"9876543210\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/demo/validate",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "demo",
+                "validate"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "validate2",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  ""
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status is 400\", () => pm.response.to.have.status(400));\r\npm.test(\"has consistent envelope\", () => {\r\n  const body = pm.response.json();\r\n  pm.expect(body).to.have.property(\"success\");\r\n  pm.expect(body).to.have.property(\"message\");\r\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"name\":\"Rajesh\",\"mobile\":\"123\"}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/demo/validate",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "demo",
+                "validate"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "notfound",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  ""
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status is 404\", () => pm.response.to.have.status(404));\r\npm.test(\"has consistent envelope\", () => {\r\n  const body = pm.response.json();\r\n  pm.expect(body).to.have.property(\"success\");\r\n  pm.expect(body).to.have.property(\"message\");\r\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/demo/not-found",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "demo",
+                "not-found"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "conflict",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  ""
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status is 409\", () => pm.response.to.have.status(409));\r\npm.test(\"has consistent envelope\", () => {\r\n  const body = pm.response.json();\r\n  pm.expect(body).to.have.property(\"success\");\r\n  pm.expect(body).to.have.property(\"message\");\r\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/demo/conflict",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "demo",
+                "conflict"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "crash",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  ""
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status is 500\", () => pm.response.to.have.status(500));\r\npm.test(\"has consistent envelope\", () => {\r\n  const body = pm.response.json();\r\n  pm.expect(body).to.have.property(\"success\");\r\n  pm.expect(body).to.have.property(\"message\");\r\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/demo/crash",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "demo",
+                "crash"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}

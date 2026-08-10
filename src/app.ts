@@ -1,28 +1,16 @@
 import express, { Application, Request, Response } from "express";
 import cors from "cors";
+import { z } from "zod";
 import { env } from "./config/env";
-
-/**
- * WHAT IS EXPRESS, MENTALLY?
- * --------------------------
- * An Express app is a PIPELINE. A request enters at the top and flows
- * downward through a stack of functions called "middleware". Each one can:
- *
- *   1. Read or modify the request        (req)
- *   2. Send a response and stop          (res.json(...))
- *   3. Pass control to the next function (next())
- *
- * Every middleware has the signature (req, res, next).
- * ORDER MATTERS ENORMOUSLY. Middleware registered first runs first.
- */
+import { errorHandler, notFoundHandler } from "./middleware/errorHandler";
+import { validate } from "./middleware/validate";
+import { asyncHandler } from "./utils/asyncHandler";
+import { sendSuccess, sendCreated } from "./utils/apiResponse";
+import { NotFoundError, ConflictError } from "./utils/AppError";
 
 export const createApp = (): Application => {
   const app = express();
 
-  // ---- 1. CORS ----
-  // Browsers block requests from one origin to another by default.
-  // Your React app on :5173 calling this API on :4000 counts as
-  // cross-origin, so we must explicitly allow it.
   app.use(
     cors({
       origin: env.CORS_ORIGIN.split(",").map((o) => o.trim()),
@@ -30,50 +18,79 @@ export const createApp = (): Application => {
     })
   );
 
-  // ---- 2. Body parsing ----
-  // Raw HTTP bodies arrive as a stream of bytes. This middleware reads
-  // that stream, parses it as JSON, and puts the result on `req.body`.
-  // WITHOUT THIS LINE, req.body IS UNDEFINED. This trips up everyone once.
   app.use(express.json({ limit: "1mb" }));
   app.use(express.urlencoded({ extended: true }));
 
-  // ---- 3. A tiny request logger ----
-  // Demonstrates the middleware contract: do something, then call next().
-  // If you forget next(), the request hangs forever. Try it once to see.
   app.use((req: Request, _res: Response, next) => {
     console.log(`${req.method} ${req.originalUrl}`);
     next();
   });
 
+  app.get("/", (_req: Request, res: Response) => {
+    res.json({ name: "ERP + CRM API", version: "1.0.0", health: "/health" });
+  });
 
-  // ---- 4. Health check ----
-  // Render, Railway, and every load balancer ping an endpoint like this
-  // to decide whether your service is alive. Always ship one.
   app.get("/health", (_req: Request, res: Response) => {
-    res.status(200).json({
+    sendSuccess(res, {
       status: "ok",
       environment: env.NODE_ENV,
       timestamp: new Date().toISOString(),
     });
   });
 
-  // ---- 5. API routes ----
-  // Module routers get mounted here in Part 4 onwards, e.g.:
-  //   app.use("/api/auth", authRouter);
-  //   app.use("/api/customers", customerRouter);
+  // ==========================================================
+  // TEMPORARY DEMO ROUTES - delete these once Part 4 lands.
+  // They exist so you can watch each error path fire in Postman.
+  // ==========================================================
 
-  // ---- 6. 404 handler ----
-  // Placed AFTER all routes. If we reach here, nothing matched.
-  app.use((req: Request, res: Response) => {
-    res.status(404).json({
-      success: false,
-      message: `Route not found: ${req.method} ${req.originalUrl}`,
-    });
+  const demoSchema = z.object({
+    name: z.string().min(2, "Name must be at least 2 characters"),
+    mobile: z.string().regex(/^[6-9]\d{9}$/, "Invalid Indian mobile number"),
+    email: z.string().email("Invalid email address").optional(),
+    age: z.coerce.number().int().positive().max(120).optional(),
   });
 
-  // ---- 7. Error handler goes here (Part 3) ----
-  // Express identifies error handlers by their FOUR arguments:
-  // (err, req, res, next). It must be registered last.
+  // 201 on success, 400 with per-field errors on failure
+  app.post(
+    "/demo/validate",
+    validate({ body: demoSchema }),
+    asyncHandler(async (req: Request, res: Response) => {
+      sendCreated(res, req.body, "Validation passed");
+    })
+  );
+
+  // 404 through our AppError classes
+  app.get(
+    "/demo/not-found",
+    asyncHandler(async () => {
+      throw new NotFoundError("Customer");
+    })
+  );
+
+  // 409 - valid request, conflicts with current state
+  app.get(
+    "/demo/conflict",
+    asyncHandler(async () => {
+      throw new ConflictError("Insufficient stock for Steel Pipe 2 inch", {
+        available: 10,
+        requested: 25,
+      });
+    })
+  );
+
+  // 500 - an unexpected bug. Note it does NOT hang, thanks to asyncHandler.
+  app.get(
+    "/demo/crash",
+    asyncHandler(async () => {
+      const broken: any = undefined;
+      return broken.someProperty.deeper;
+    })
+  );
+
+  // ==========================================================
+
+  app.use(notFoundHandler);
+  app.use(errorHandler); // must be LAST
 
   return app;
 };
