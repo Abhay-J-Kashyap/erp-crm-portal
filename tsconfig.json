@@ -1,0 +1,48 @@
+{
+  "compilerOptions": {
+    // Which JavaScript version to compile DOWN to.
+    // Node 18+ supports ES2022 natively, so no need to go older.
+    "target": "ES2022",
+    "lib": ["ES2022"],
+
+    // How modules are emitted. CommonJS = the classic `require()` system.
+    // We write `import` syntax; TypeScript converts it. Fewer footguns than ESM.
+    "module": "commonjs",
+    "moduleResolution": "node",
+    // Suppress deprecation errors for older TS options (per migration guidance).
+    // Set to "6.0" to silence warnings about deprecated options that will
+    // stop functioning in TypeScript 7.0.
+    "ignoreDeprecations": "6.0",
+
+    // Where source lives and where compiled JS goes.
+    "rootDir": "./src",
+    "outDir": "./dist",
+
+    // THE important one. Turns on all strict type checks:
+    // no implicit `any`, null/undefined must be handled, etc.
+    // Painful for a week, then it saves you constantly.
+    "strict": true,
+
+    // Lets you write `import express from "express"` instead of
+    // `import * as express from "express"`. Just turn it on.
+    "esModuleInterop": true,
+
+    // Don't type-check inside node_modules. Massive speed win.
+    "skipLibCheck": true,
+
+    // Prevents "works on my Mac, breaks on Linux server" import bugs.
+    "forceConsistentCasingInFileNames": true,
+
+    // Allows `import config from "./config.json"`
+    "resolveJsonModule": true,
+
+    // Maps errors in compiled JS back to your TS lines.
+    "sourceMap": true,
+
+    // Extra safety: warns on unused variables and params.
+    "noUnusedLocals": true,
+    "noUnusedParameters": false
+  },
+  "include": ["src/**/*.ts"],
+  "exclude": ["node_modules", "dist"]
+}
