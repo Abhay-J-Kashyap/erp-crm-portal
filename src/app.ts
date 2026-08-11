@@ -10,6 +10,7 @@ import { NotFoundError, ConflictError } from "./utils/AppError";
 import { authRouter } from "./modules/auth/auth.routes";
 import { customerRouter } from "./modules/customer/customer.routes";
 import { productRouter } from "./modules/product/product.routes";
+import { challanRouter } from "./modules/challan/challan.routes";
 
 export const createApp = (): Application => {
   const app = express();
@@ -48,6 +49,7 @@ export const createApp = (): Application => {
   app.use("/api/auth", authRouter);
   app.use("/api/customers", customerRouter);
   app.use("/api/products", productRouter);
+  app.use("/api/challans", challanRouter);
 
   // ==========================================================
   // TEMPORARY DEMO ROUTES - delete these once Part 4 lands.
