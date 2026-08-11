@@ -1,0 +1,29 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html { font-family: Inter, system-ui, sans-serif; }
+  body { @apply bg-ink-50 text-ink-900 antialiased; }
+
+  /* Tabular figures so numeric columns align vertically. In a system
+     full of stock counts and prices this is the difference between a
+     scannable table and a ragged one. */
+  .tnum { font-variant-numeric: tabular-nums; }
+
+  :focus-visible { @apply outline-none ring-2 ring-petrol-500 ring-offset-1; }
+}
+
+@layer components {
+  .btn { @apply inline-flex items-center justify-center gap-2 rounded-md px-3.5 py-2 text-sm font-medium transition disabled:opacity-50 disabled:cursor-not-allowed; }
+  .btn-primary { @apply btn bg-petrol-700 text-white hover:bg-petrol-800; }
+  .btn-ghost { @apply btn border border-ink-200 bg-white text-ink-700 hover:bg-ink-50; }
+  .btn-danger { @apply btn bg-red-600 text-white hover:bg-red-700; }
+
+  .input { @apply w-full rounded-md border border-ink-200 bg-white px-3 py-2 text-sm placeholder:text-ink-400 focus:border-petrol-500; }
+  .label { @apply mb-1 block text-xs font-medium uppercase tracking-wide text-ink-500; }
+
+  .card { @apply rounded-lg border border-ink-200 bg-white; }
+
+  .badge { @apply inline-flex items-center rounded px-2 py-0.5 text-xs font-medium; }
+}
