@@ -3,6 +3,11 @@ import { Layout } from "@/components/Layout";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { LoginPage } from "@/pages/LoginPage";
 import { DashboardPage } from "@/pages/DashboardPage";
+import { CustomersPage } from "@/pages/CustomersPage";
+import { CustomerDetailPage } from "@/pages/CustomerDetailPage";
+import { ProductsPage } from "@/pages/ProductsPage";
+import { ChallansPage } from "@/pages/ChallansPage";
+import { ChallanDetailPage } from "@/pages/ChallanDetailPage";
 import { ForbiddenPage } from "@/pages/ForbiddenPage";
 import { NotFoundPage } from "@/pages/NotFoundPage";
 
@@ -10,12 +15,12 @@ import { NotFoundPage } from "@/pages/NotFoundPage";
  * ROUTING STRUCTURE
  * -----------------
  * /login sits OUTSIDE the protected tree — it must render for people
- * who aren't authenticated yet.
+ * who aren't authenticated.
  *
- * Everything else nests inside one <ProtectedRoute><Layout/></ProtectedRoute>.
- * Nesting means the guard and the sidebar are declared ONCE rather than
- * repeated per page, so a new page added below is protected by default —
- * the same fail-closed principle as router.use(authenticate) in Part 5.
+ * Everything else nests inside one <ProtectedRoute><Layout/></ProtectedRoute>,
+ * so the guard and the sidebar are declared ONCE. A route added below is
+ * protected by default — the same fail-closed principle as
+ * router.use(authenticate) on the backend.
  */
 export default function App() {
   return (
@@ -31,7 +36,11 @@ export default function App() {
         }
       >
         <Route path="/" element={<DashboardPage />} />
-        {/* Customers, Products and Challans pages land here in Part 9 */}
+        <Route path="/customers" element={<CustomersPage />} />
+        <Route path="/customers/:id" element={<CustomerDetailPage />} />
+        <Route path="/products" element={<ProductsPage />} />
+        <Route path="/challans" element={<ChallansPage />} />
+        <Route path="/challans/:id" element={<ChallanDetailPage />} />
       </Route>
 
       <Route path="*" element={<NotFoundPage />} />
