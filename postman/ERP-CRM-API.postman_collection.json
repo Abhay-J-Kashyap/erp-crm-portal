@@ -23,6 +23,9 @@
             }
           ],
           "request": {
+            "auth": {
+              "type": "noauth"
+            },
             "method": "POST",
             "header": [],
             "body": {
@@ -236,7 +239,365 @@
     },
     {
       "name": "Customers",
-      "item": []
+      "item": [
+        {
+          "name": "get-customers(200)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/customers",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "customers"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "get-customers-with-limit(200)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/customers?page=1&limit=2",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "customers"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "2"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "search-name(200)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/customers?search=sharma",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "customers"
+              ],
+              "query": [
+                {
+                  "key": "search",
+                  "value": "sharma"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "search-mobile(200)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/customers?search=9845",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "customers"
+              ],
+              "query": [
+                {
+                  "key": "search",
+                  "value": "9845"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "filter-request(200)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/customers?status=LEAD",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "customers"
+              ],
+              "query": [
+                {
+                  "key": "status",
+                  "value": "LEAD"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "sort(200)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}\t/api/customers?sortBy=name&sortOrder=asc",
+              "host": [
+                "{{baseUrl}}\t"
+              ],
+              "path": [
+                "api",
+                "customers"
+              ],
+              "query": [
+                {
+                  "key": "sortBy",
+                  "value": "name"
+                },
+                {
+                  "key": "sortOrder",
+                  "value": "asc"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "sort-pass-hash(400)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/customers?sortBy=passwordHash",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "customers"
+              ],
+              "query": [
+                {
+                  "key": "sortBy",
+                  "value": "passwordHash"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "bad-uuid(400)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/customers/abc",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "customers",
+                "abc"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "stats(200)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/customers/stats",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "customers",
+                "stats"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "search-uuid(200)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/customers/75863356-2815-49dc-a134-0d3cb51e8c99",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "customers",
+                "75863356-2815-49dc-a134-0d3cb51e8c99"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "not-found(404)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/customers/00000000-0000-0000-0000-000000000000",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "customers",
+                "00000000-0000-0000-0000-000000000000"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "create(201)",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"name\": \"Vikram Reddy\",\r\n  \"mobile\": \"9900112233\",\r\n  \"email\": \"vikram@reddyenterprises.com\",\r\n  \"businessName\": \"Reddy Enterprises\",\r\n  \"gstNumber\": \"29PQRST5678U1Z3\",\r\n  \"customerType\": \"WHOLESALE\",\r\n  \"city\": \"Bengaluru\",\r\n  \"state\": \"Karnataka\",\r\n  \"pincode\": \"560001\",\r\n  \"status\": \"LEAD\",\r\n  \"followUpDate\": \"2026-08-20\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/customers",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "customers"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "duplicate(409)",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"name\": \"Vikram Reddy\",\r\n  \"mobile\": \"9900112233\",\r\n  \"email\": \"vikram@reddyenterprises.com\",\r\n  \"businessName\": \"Reddy Enterprises\",\r\n  \"gstNumber\": \"29PQRST5678U1Z3\",\r\n  \"customerType\": \"WHOLESALE\",\r\n  \"city\": \"Bengaluru\",\r\n  \"state\": \"Karnataka\",\r\n  \"pincode\": \"560001\",\r\n  \"status\": \"LEAD\",\r\n  \"followUpDate\": \"2026-08-20\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/customers",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "customers"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "patch-details(200)",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"status\": \"ACTIVE\",\r\n  \"city\": \"Mysuru\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/customers/509d91f7-a442-4937-8a52-52ac1d141a66",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "customers",
+                "509d91f7-a442-4937-8a52-52ac1d141a66"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "follow-ups(201)",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"note\": \"Called about bulk pipe order. Wants a quote for 200 units.\",\r\n  \"nextFollowUpDate\": \"2026-08-18\",\r\n  \"status\": \"ACTIVE\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/customers/509d91f7-a442-4937-8a52-52ac1d141a66/follow-ups",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "customers",
+                "509d91f7-a442-4937-8a52-52ac1d141a66",
+                "follow-ups"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
     },
     {
       "name": "Products",
