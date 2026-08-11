@@ -9,6 +9,7 @@ import { sendSuccess, sendCreated } from "./utils/apiResponse";
 import { NotFoundError, ConflictError } from "./utils/AppError";
 import { authRouter } from "./modules/auth/auth.routes";
 import { customerRouter } from "./modules/customer/customer.routes";
+import { productRouter } from "./modules/product/product.routes";
 
 export const createApp = (): Application => {
   const app = express();
@@ -46,6 +47,7 @@ export const createApp = (): Application => {
 
   app.use("/api/auth", authRouter);
   app.use("/api/customers", customerRouter);
+  app.use("/api/products", productRouter);
 
   // ==========================================================
   // TEMPORARY DEMO ROUTES - delete these once Part 4 lands.

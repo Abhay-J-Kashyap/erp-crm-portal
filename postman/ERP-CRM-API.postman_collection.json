@@ -17,7 +17,7 @@
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "const res = pm.response.json();\r\nif (res.data && res.data.token) {\r\n  pm.environment.set(\"token\", res.data.token);\r\n}"
+                  "const res = pm.response.json();\r\nif (res.data && res.data.token) {\r\n  pm.environment.set(\"token\", res.data.token);\r\n}\r\npm.test(\"status is 200\", () => pm.response.to.have.status(200));"
                 ]
               }
             }
@@ -53,6 +53,17 @@
         },
         {
           "name": "Login — wrong password (401)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status is 401\", () => pm.response.to.have.status(401));"
+                ]
+              }
+            }
+          ],
           "request": {
             "method": "POST",
             "header": [],
@@ -81,6 +92,17 @@
         },
         {
           "name": "Login — unknown email (401)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status is 401\", () => pm.response.to.have.status(401));"
+                ]
+              }
+            }
+          ],
           "request": {
             "method": "POST",
             "header": [],
@@ -109,6 +131,17 @@
         },
         {
           "name": "Login — invalid email format (400)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status is 400\", () => pm.response.to.have.status(400));"
+                ]
+              }
+            }
+          ],
           "request": {
             "method": "POST",
             "header": [],
@@ -137,6 +170,17 @@
         },
         {
           "name": "Me — no token (401)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status is 401\", () => pm.response.to.have.status(401));"
+                ]
+              }
+            }
+          ],
           "request": {
             "auth": {
               "type": "noauth"
@@ -159,6 +203,17 @@
         },
         {
           "name": "Me — with token (200)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status is 200\", () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
           "request": {
             "method": "GET",
             "header": [],
@@ -178,15 +233,26 @@
         },
         {
           "name": "Users — as admin (200)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status is 200\", () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
           "request": {
             "auth": {
               "type": "noauth"
             },
-            "method": "POST",
+            "method": "GET",
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\"email\":\"admin@erp.com\",\"password\":\"Password@123\"}",
+              "raw": "",
               "options": {
                 "raw": {
                   "language": "json"
@@ -194,22 +260,52 @@
               }
             },
             "url": {
-              "raw": "{{baseUrl}}/api/auth/login",
+              "raw": "{{baseUrl}}/api/auth/users",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "api",
                 "auth",
-                "login"
+                "users"
               ]
             }
           },
           "response": []
         },
         {
-          "name": "Users as sales (200)",
+          "name": "Users as sales (403)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status is 403\", () => pm.response.to.have.status(403));"
+                ]
+              }
+            },
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.sendRequest({\r\n  url: pm.environment.get(\"baseUrl\") + \"/api/auth/login\",\r\n  method: \"POST\",\r\n  header: { \"Content-Type\": \"application/json\" },\r\n  body: {\r\n    mode: \"raw\",\r\n    raw: JSON.stringify({ email: \"sales@erp.com\", password: \"Password@123\" })\r\n  }\r\n}, (err, res) => {\r\n  if (!err) pm.environment.set(\"salesToken\", res.json().data.token);\r\n});"
+                ]
+              }
+            }
+          ],
           "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{salesToken}}",
+                  "type": "string"
+                }
+              ]
+            },
             "method": "GET",
             "header": [],
             "body": {
@@ -242,6 +338,17 @@
       "item": [
         {
           "name": "get-customers(200)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const res = pm.response.json();\r\nif (res.data && res.data.length) {\r\n  pm.environment.set(\"customerId\", res.data[0].id);\r\n}\r\npm.test(\"status is 200\", () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
           "request": {
             "method": "GET",
             "header": [],
@@ -260,6 +367,17 @@
         },
         {
           "name": "get-customers-with-limit(200)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status is 200\", () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
           "request": {
             "method": "GET",
             "header": [],
@@ -288,6 +406,17 @@
         },
         {
           "name": "search-name(200)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status is 200\", () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
           "request": {
             "method": "GET",
             "header": [],
@@ -312,6 +441,17 @@
         },
         {
           "name": "search-mobile(200)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status is 200\", () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
           "request": {
             "method": "GET",
             "header": [],
@@ -336,6 +476,17 @@
         },
         {
           "name": "filter-request(200)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status is 200\", () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
           "request": {
             "method": "GET",
             "header": [],
@@ -360,13 +511,24 @@
         },
         {
           "name": "sort(200)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status is 200\", () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
           "request": {
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}\t/api/customers?sortBy=name&sortOrder=asc",
+              "raw": "{{baseUrl}}/api/customers?sortBy=name&sortOrder=asc",
               "host": [
-                "{{baseUrl}}\t"
+                "{{baseUrl}}"
               ],
               "path": [
                 "api",
@@ -388,6 +550,17 @@
         },
         {
           "name": "sort-pass-hash(400)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status is 400\", () => pm.response.to.have.status(400));"
+                ]
+              }
+            }
+          ],
           "request": {
             "method": "GET",
             "header": [],
@@ -412,6 +585,17 @@
         },
         {
           "name": "bad-uuid(400)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status is 400\", () => pm.response.to.have.status(400));"
+                ]
+              }
+            }
+          ],
           "request": {
             "method": "GET",
             "header": [],
@@ -431,6 +615,17 @@
         },
         {
           "name": "stats(200)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status is 200\", () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
           "request": {
             "method": "GET",
             "header": [],
@@ -450,18 +645,29 @@
         },
         {
           "name": "search-uuid(200)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status is 200\", () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
           "request": {
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/api/customers/75863356-2815-49dc-a134-0d3cb51e8c99",
+              "raw": "{{baseUrl}}/api/customers/{{customerId}}",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "api",
                 "customers",
-                "75863356-2815-49dc-a134-0d3cb51e8c99"
+                "{{customerId}}"
               ]
             }
           },
@@ -469,6 +675,17 @@
         },
         {
           "name": "not-found(404)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status is 404\", () => pm.response.to.have.status(404));"
+                ]
+              }
+            }
+          ],
           "request": {
             "method": "GET",
             "header": [],
@@ -488,6 +705,17 @@
         },
         {
           "name": "create(201)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status is 201\", () => pm.response.to.have.status(201));"
+                ]
+              }
+            }
+          ],
           "request": {
             "method": "POST",
             "header": [],
@@ -515,6 +743,17 @@
         },
         {
           "name": "duplicate(409)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status is 409\", () => pm.response.to.have.status(409));"
+                ]
+              }
+            }
+          ],
           "request": {
             "method": "POST",
             "header": [],
@@ -542,6 +781,17 @@
         },
         {
           "name": "patch-details(200)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status is 200\", () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
           "request": {
             "method": "PATCH",
             "header": [],
@@ -555,14 +805,14 @@
               }
             },
             "url": {
-              "raw": "{{baseUrl}}/api/customers/509d91f7-a442-4937-8a52-52ac1d141a66",
+              "raw": "{{baseUrl}}/api/customers/{{customerId}}",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "api",
                 "customers",
-                "509d91f7-a442-4937-8a52-52ac1d141a66"
+                "{{customerId}}"
               ]
             }
           },
@@ -570,95 +820,7 @@
         },
         {
           "name": "follow-ups(201)",
-          "request": {
-            "method": "POST",
-            "header": [],
-            "body": {
-              "mode": "raw",
-              "raw": "{\r\n  \"note\": \"Called about bulk pipe order. Wants a quote for 200 units.\",\r\n  \"nextFollowUpDate\": \"2026-08-18\",\r\n  \"status\": \"ACTIVE\"\r\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            },
-            "url": {
-              "raw": "{{baseUrl}}/api/customers/509d91f7-a442-4937-8a52-52ac1d141a66/follow-ups",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "customers",
-                "509d91f7-a442-4937-8a52-52ac1d141a66",
-                "follow-ups"
-              ]
-            }
-          },
-          "response": []
-        }
-      ]
-    },
-    {
-      "name": "Products",
-      "item": []
-    },
-    {
-      "name": "Challans",
-      "item": []
-    },
-    {
-      "name": "Sandbox",
-      "item": [
-        {
-          "name": "health",
           "event": [
-            {
-              "listen": "prerequest",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  ""
-                ]
-              }
-            },
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test(\"status is 200\", () => pm.response.to.have.status(200));\r\npm.test(\"has consistent envelope\", () => {\r\n  const body = pm.response.json();\r\n  pm.expect(body).to.have.property(\"success\");\r\n  pm.expect(body).to.have.property(\"message\");\r\n});"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{baseUrl}}/health",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "health"
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "validate1",
-          "event": [
-            {
-              "listen": "prerequest",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  ""
-                ]
-              }
-            },
             {
               "listen": "test",
               "script": {
@@ -674,7 +836,7 @@
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\"name\":\"Rajesh\",\"mobile\":\"9876543210\"}",
+              "raw": "{\r\n  \"note\": \"Called about bulk pipe order. Wants a quote for 200 units.\",\r\n  \"nextFollowUpDate\": \"2026-08-18\",\r\n  \"status\": \"ACTIVE\"\r\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -682,36 +844,223 @@
               }
             },
             "url": {
-              "raw": "{{baseUrl}}/demo/validate",
+              "raw": "{{baseUrl}}/api/customers/{{customerId}}/follow-ups",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
-                "demo",
-                "validate"
+                "api",
+                "customers",
+                "{{customerId}}",
+                "follow-ups"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Products",
+      "item": [
+        {
+          "name": "list(200)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const res = pm.response.json();\r\nif (res.data && res.data.length) {\r\n  pm.environment.set(\"productId\", res.data[0].id);\r\n}\r\npm.test(\"status is 200\", () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/products",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "products"
               ]
             }
           },
           "response": []
         },
         {
-          "name": "validate2",
+          "name": "low stock(200)",
           "event": [
-            {
-              "listen": "prerequest",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  ""
-                ]
-              }
-            },
             {
               "listen": "test",
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "pm.test(\"status is 400\", () => pm.response.to.have.status(400));\r\npm.test(\"has consistent envelope\", () => {\r\n  const body = pm.response.json();\r\n  pm.expect(body).to.have.property(\"success\");\r\n  pm.expect(body).to.have.property(\"message\");\r\n});"
+                  "pm.test(\"status is 200\", () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/products?lowStock=true",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "products"
+              ],
+              "query": [
+                {
+                  "key": "lowStock",
+                  "value": "true"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "low stock report(200)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status is 200\", () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/products/low-stock",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "products",
+                "low-stock"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "search(200)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status is 200\", () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/products?search=pipe",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "products"
+              ],
+              "query": [
+                {
+                  "key": "search",
+                  "value": "pipe"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "categories(200)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status is 200\", () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/products/categories",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "products",
+                "categories"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "stats(200)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status is 200\", () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/products/stats",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "products",
+                "stats"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "create(201)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status is 201\", () => pm.response.to.have.status(201));"
                 ]
               }
             }
@@ -721,7 +1070,7 @@
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\"name\":\"Rajesh\",\"mobile\":\"123\"}",
+              "raw": "{\r\n  \"name\": \"Galvanized Sheet 1mm\",\r\n  \"sku\": \"GS-1MM\",\r\n  \"category\": \"Sheets\",\r\n  \"unitPrice\": \"780.50\",\r\n  \"openingStock\": 200,\r\n  \"minStockAlert\": 40,\r\n  \"location\": \"Warehouse A\"\r\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -729,36 +1078,185 @@
               }
             },
             "url": {
-              "raw": "{{baseUrl}}/demo/validate",
+              "raw": "{{baseUrl}}/api/products",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
-                "demo",
-                "validate"
+                "api",
+                "products"
               ]
             }
           },
           "response": []
         },
         {
-          "name": "notfound",
+          "name": "duplicate SKU(409)",
           "event": [
-            {
-              "listen": "prerequest",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  ""
-                ]
-              }
-            },
             {
               "listen": "test",
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "pm.test(\"status is 404\", () => pm.response.to.have.status(404));\r\npm.test(\"has consistent envelope\", () => {\r\n  const body = pm.response.json();\r\n  pm.expect(body).to.have.property(\"success\");\r\n  pm.expect(body).to.have.property(\"message\");\r\n});"
+                  "pm.test(\"status is 409\", () => pm.response.to.have.status(409));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"name\": \"Galvanized Sheet 1mm\",\r\n  \"sku\": \"GS-1MM\",\r\n  \"category\": \"Sheets\",\r\n  \"unitPrice\": \"780.50\",\r\n  \"openingStock\": 200,\r\n  \"minStockAlert\": 40,\r\n  \"location\": \"Warehouse A\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/products",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "products"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "stock in(200)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status is 200\", () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{ \"quantity\": 50, \"movementType\": \"IN\", \"reason\": \"Purchase order PO-1042 received\" }",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/products/{{productId}}/stock",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "products",
+                "{{productId}}",
+                "stock"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "oversell(409)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status is 409\", () => pm.response.to.have.status(409));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{ \"quantity\": 9999, \"movementType\": \"OUT\", \"reason\": \"Testing insufficient stock\" }",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/products/{{productId}}/stock",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "products",
+                "{{productId}}",
+                "stock"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "stock out(200)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status is 200\", () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{ \"quantity\": 50, \"movementType\": \"OUT\", \"reason\": \"Sell order PO-1042 received\" }",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/products/{{productId}}/stock",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "products",
+                "{{productId}}",
+                "stock"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "movements(200)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"status is 200\", () => pm.response.to.have.status(200));"
                 ]
               }
             }
@@ -767,27 +1265,29 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/demo/not-found",
+              "raw": "{{baseUrl}}/api/products/{{productId}}/movements",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
-                "demo",
-                "not-found"
+                "api",
+                "products",
+                "{{productId}}",
+                "movements"
               ]
             }
           },
           "response": []
         },
         {
-          "name": "conflict",
+          "name": "as sales(403)",
           "event": [
             {
               "listen": "prerequest",
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  ""
+                  "pm.sendRequest({\r\n  url: pm.environment.get(\"baseUrl\") + \"/api/auth/login\",\r\n  method: \"POST\",\r\n  header: { \"Content-Type\": \"application/json\" },\r\n  body: {\r\n    mode: \"raw\",\r\n    raw: JSON.stringify({ email: \"sales@erp.com\", password: \"Password@123\" })\r\n  }\r\n}, (err, res) => {\r\n  if (!err) pm.environment.set(\"salesToken\", res.json().data.token);\r\n});"
                 ]
               }
             },
@@ -796,45 +1296,66 @@
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "pm.test(\"status is 409\", () => pm.response.to.have.status(409));\r\npm.test(\"has consistent envelope\", () => {\r\n  const body = pm.response.json();\r\n  pm.expect(body).to.have.property(\"success\");\r\n  pm.expect(body).to.have.property(\"message\");\r\n});"
+                  "pm.test(\"status is 403\", () => pm.response.to.have.status(403));"
                 ]
               }
             }
           ],
           "request": {
-            "method": "GET",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{salesToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
             "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{ \"quantity\": 5, \"movementType\": \"IN\", \"reason\": \"Testing role restriction\" }",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
             "url": {
-              "raw": "{{baseUrl}}/demo/conflict",
+              "raw": "{{baseUrl}}/api/products/{{productId}}/stock",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
-                "demo",
-                "conflict"
+                "api",
+                "products",
+                "{{productId}}",
+                "stock"
               ]
             }
           },
           "response": []
-        },
+        }
+      ]
+    },
+    {
+      "name": "Challans",
+      "item": []
+    },
+    {
+      "name": "Sandbox",
+      "item": [
         {
-          "name": "crash",
+          "name": "health",
           "event": [
-            {
-              "listen": "prerequest",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  ""
-                ]
-              }
-            },
             {
               "listen": "test",
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "pm.test(\"status is 500\", () => pm.response.to.have.status(500));\r\npm.test(\"has consistent envelope\", () => {\r\n  const body = pm.response.json();\r\n  pm.expect(body).to.have.property(\"success\");\r\n  pm.expect(body).to.have.property(\"message\");\r\n});"
+                  "pm.test(\"status is 200\", () => pm.response.to.have.status(200));\r\npm.test(\"has consistent envelope\", () => {\r\n  const body = pm.response.json();\r\n  pm.expect(body).to.have.property(\"success\");\r\n  pm.expect(body).to.have.property(\"message\");\r\n});\r\npm.test(\"status is 200\", () => pm.response.to.have.status(200));"
                 ]
               }
             }
@@ -843,13 +1364,12 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/demo/crash",
+              "raw": "{{baseUrl}}/health",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
-                "demo",
-                "crash"
+                "health"
               ]
             }
           },
