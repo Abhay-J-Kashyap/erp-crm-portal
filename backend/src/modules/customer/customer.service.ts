@@ -334,11 +334,13 @@ export const customerService = {
         by: ["status"],
         where: { isActive: true },
         _count: true,
+        orderBy: { status: "asc" },
       }),
       prisma.customer.groupBy({
         by: ["customerType"],
         where: { isActive: true },
         _count: true,
+        orderBy: { customerType: "asc" },
       }),
       prisma.customer.count({
         where: { isActive: true, followUpDate: { lte: today } },

@@ -576,7 +576,7 @@ export const challanService = {
 
   async getStats() {
     const [byStatus, totals] = await prisma.$transaction([
-      prisma.challan.groupBy({ by: ["status"], _count: true }),
+      prisma.challan.groupBy({ by: ["status"], _count: true, orderBy: { status: "asc" },}),
       prisma.challan.aggregate({
         where: { status: ChallanStatus.CONFIRMED },
         _sum: { totalAmount: true, totalQuantity: true },

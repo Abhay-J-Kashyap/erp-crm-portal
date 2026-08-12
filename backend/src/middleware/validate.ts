@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import { AnyZodObject, ZodError } from "zod";
+import {ZodError, ZodTypeAny } from "zod";
 
 /**
  * VALIDATION MIDDLEWARE
@@ -18,9 +18,9 @@ import { AnyZodObject, ZodError } from "zod";
  */
 
 type RequestSchemas = {
-  body?: AnyZodObject;
-  query?: AnyZodObject;
-  params?: AnyZodObject;
+  body?: ZodTypeAny;
+  query?: ZodTypeAny;
+  params?: ZodTypeAny;
 };
 
 export const validate =
