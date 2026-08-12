@@ -360,6 +360,24 @@ not-found path so both branches take comparable time. Different messages — or
 a measurably faster failure — would let an attacker confirm which email
 addresses have accounts.
 
+## Assumptions
+
+- **Purchase orders and invoices are out of scope.** The brief mentions them in
+  the business context but defines no fields or flows for them. Stock arriving
+  from a purchase is recorded as an `IN` movement with a free-text reason.
+- **Mobile numbers are not unique.** A family business may legitimately share
+  one number across accounts, so duplicates return a `409` warning naming the
+  existing customer rather than a hard database constraint.
+- **Customers are created by internal staff**, never self-registered, so there
+  is no public signup. Admins provision user accounts.
+- **Single-warehouse stock.** Products carry a `location` label, but stock is
+  tracked as one pooled quantity rather than per-location balances.
+- **Snapshots are taken at creation, not confirmation**, so a draft honours the
+  price quoted when it was raised.
+- **Indian formats assumed** — 10-digit mobiles starting 6–9, GSTIN pattern,
+  6-digit pincodes, INR currency.
+- **Challan numbers reset per calendar year** (`CH-2026-0001`).
+
 ## API reference
 
 All routes are prefixed `/api`. Every route except `POST /auth/login` requires
