@@ -12,7 +12,6 @@
     // Suppress deprecation errors for older TS options (per migration guidance).
     // Set to "6.0" to silence warnings about deprecated options that will
     // stop functioning in TypeScript 7.0.
-    "ignoreDeprecations": "6.0",
 
     // Where source lives and where compiled JS goes.
     "rootDir": "./src",
